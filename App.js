@@ -18,6 +18,7 @@ import Beacons from 'react-native-beacons-manager';
 import BeaconBroadcast from '@jaidis/react-native-ibeacon-simulator';
 import 'react-native-get-random-values';
 import PushNotification from 'react-native-push-notification';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
 
 class App extends Component {
   beaconsDidRangeEvent = null;
@@ -115,6 +116,17 @@ class App extends Component {
                     data => {
                       console.log('beaconsDidRange data: ', data);
                       this.beaconsUpdateTick(data.beacons);
+                      if (Platform.OS === 'android') {
+                        this.triggerNotification(
+                          'New Beacon',
+                          'New Beacon Was Detected, Click to View',
+                        );
+                      } else {
+                        this.triggerNotificationIOS(
+                          'New Beacon',
+                          'New Beacon Was Detected, Click to View',
+                        );
+                      }
                     },
                   );
               },
@@ -187,6 +199,7 @@ class App extends Component {
           BeaconBroadcast.stopAdvertisingBeacon();
           console.log('Beacons monitoring stopped!');
           if (status) {
+            // this.triggerNotification('New Beacon Detected',  '')
             BeaconBroadcast.startAdvertisingBeaconWithString(
               this.state.uuid,
               this.state.identifier,
@@ -261,7 +274,13 @@ class App extends Component {
       message,
     });
   };
-
+  triggerNotificationIOS = (title, message) => {
+    PushNotificationIOS.addNotificationRequest({
+      threadId: 'beacon-app-channel-id',
+      title,
+      body: message,
+    });
+  };
   render() {
     return (
       <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
@@ -314,7 +333,7 @@ class App extends Component {
                 Enable listener
               </Text>
             </View>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={{
                 backgroundColor: 'blue',
                 padding: 20,
@@ -330,7 +349,7 @@ class App extends Component {
               <Text style={{color: 'white', fontSize: 20}}>
                 Click for Notification
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             {this.state.isListenerEnable && (
               <View style={{flex: 1}}>
                 <Text
