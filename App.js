@@ -39,6 +39,23 @@ class App extends Component {
     beacons: null,
   };
 
+  componentDidUpdate(prevState) {
+    const {beacons} = this.state;
+    if (beacons !== prevState.beacons) {
+      if (Platform.OS === 'android') {
+        this.triggerNotification(
+          'New Beacon',
+          'New Beacon Was Detected, Click to View',
+        );
+      } else {
+        this.triggerNotificationIOS(
+          'New Beacon',
+          'New Beacon Was Detected, Click to View',
+        );
+      }
+    }
+  }
+
   exceptionAlert(title, exception) {
     Alert.alert(
       title + ' Exception',
@@ -116,17 +133,6 @@ class App extends Component {
                     data => {
                       console.log('beaconsDidRange data: ', data);
                       this.beaconsUpdateTick(data.beacons);
-                      if (Platform.OS === 'android') {
-                        this.triggerNotification(
-                          'New Beacon',
-                          'New Beacon Was Detected, Click to View',
-                        );
-                      } else {
-                        this.triggerNotificationIOS(
-                          'New Beacon',
-                          'New Beacon Was Detected, Click to View',
-                        );
-                      }
                     },
                   );
               },
