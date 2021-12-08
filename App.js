@@ -39,22 +39,22 @@ class App extends Component {
     beacons: null,
   };
 
-  componentDidUpdate(prevState) {
-    const {beacons} = this.state;
-    if (beacons !== prevState.beacons) {
-      if (Platform.OS === 'android') {
-        this.triggerNotification(
-          'New Beacon',
-          'New Beacon Was Detected, Click to View',
-        );
-      } else {
-        this.triggerNotificationIOS(
-          'New Beacon',
-          'New Beacon Was Detected, Click to View',
-        );
-      }
-    }
-  }
+  // componentDidUpdate(prevState) {
+  //   const {beacons, isListenerEnable} = this.state;
+  //   if (beacons !== prevState.beacons) {
+  //     if (Platform.OS === 'android' && isListenerEnable) {
+  //       this.triggerNotification(
+  //         'New Beacon',
+  //         'New Beacon Was Detected, Click to View',
+  //       );
+  //     } else if (Platform.OS === 'ios' && isListenerEnable) {
+  //       this.triggerNotificationIOS(
+  //         'New Beacon',
+  //         'New Beacon Was Detected, Click to View',
+  //       );
+  //     }
+  //   }
+  // }
 
   exceptionAlert(title, exception) {
     Alert.alert(
@@ -245,6 +245,22 @@ class App extends Component {
   };
 
   beaconItemRender = item => {
+    const {isListenerEnable} = this.state;
+
+    if (
+      Platform.OS === 'android' &&
+      isListenerEnable &&
+      item.item.proximity < 10
+    ) {
+      this.triggerNotification('New Beacon', `UUID: ${item.item.uuid}`);
+    } else if (
+      Platform.OS === 'ios' &&
+      isListenerEnable &&
+      item.item.proximity < 10
+    ) {
+      this.triggerNotificationIOS('New Beacon', `UUID: ${item.item.uuid}`);
+    }
+
     return (
       <View
         style={{flexDirection: 'row', marginHorizontal: 20, marginBottom: 10}}>
@@ -366,7 +382,8 @@ class App extends Component {
                   data={this.state.beacons}
                   keyExtractor={(item, index) => index.toString()}
                   renderItem={this.beaconItemRender}
-                  nestedScrollEnabled></FlatList>
+                  nestedScrollEnabled
+                />
               </View>
             )}
           </View>
