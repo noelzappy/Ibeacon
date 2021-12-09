@@ -31,17 +31,14 @@ PushNotification.configure({
   requestPermissions: Platform.OS === 'ios',
 });
 
-PushNotification.createChannel(
-  {
-    channelId: 'beacon-app-channel-id', 
-    channelName: 'Beacon App Channel', 
-    channelDescription: 'A channel to categorise your notifications', 
-    playSound: true,
-    soundName: 'default', 
-    importance: Importance.HIGH, 
-    vibrate: true, 
-  },
-  created => console.log(`createChannel returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
-);
+PushNotification.createChannel({
+  channelId: 'beacon-app-channel-id',
+  channelName: 'Beacon App Channel',
+  channelDescription: 'A channel to categorise your notifications',
+  playSound: true,
+  soundName: 'default',
+  importance: Importance.HIGH,
+  vibrate: true,
+});
 
 AppRegistry.registerComponent(appName, () => App);

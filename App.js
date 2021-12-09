@@ -294,6 +294,7 @@ class App extends Component {
       channelId: 'beacon-app-channel-id',
       title,
       message,
+      date: new Date(Date.now() + 60 * 200),
     });
   };
   triggerNotificationIOS = (title, message) => {
