@@ -55,6 +55,7 @@ class App extends Component {
         ) {
           this.triggerNotification('New Beacon', `${item.item.uuid}`);
           this.blownBeacons.push(item);
+          this.clearBlown();
         }
       });
     }
