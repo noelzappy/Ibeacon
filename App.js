@@ -24,6 +24,7 @@ class App extends Component {
   beaconsDidRangeEvent = null;
   beaconsServiceDidConnect = null;
   authStateDidRangeEvent = null;
+  blownBeacons = [];
 
   regionId = 'REGION1';
 
@@ -39,22 +40,31 @@ class App extends Component {
     beacons: null,
   };
 
-  // componentDidUpdate(prevState) {
-  //   const {beacons, isListenerEnable} = this.state;
-  //   if (beacons !== prevState.beacons) {
-  //     if (Platform.OS === 'android' && isListenerEnable) {
-  //       this.triggerNotification(
-  //         'New Beacon',
-  //         'New Beacon Was Detected, Click to View',
-  //       );
-  //     } else if (Platform.OS === 'ios' && isListenerEnable) {
-  //       this.triggerNotificationIOS(
-  //         'New Beacon',
-  //         'New Beacon Was Detected, Click to View',
-  //       );
-  //     }
-  //   }
-  // }
+  componentDidUpdate(prevState) {
+    const {beacons, isListenerEnable} = this.state;
+    if (
+      isListenerEnable === true &&
+      beacons !== null &&
+      beacons.length > 0 &&
+      beacons !== prevState.beacons
+    ) {
+      beacons.forEach(item => {
+        if (
+          !this.blownBeacons.includes(item) &&
+          item.item.distance.toFixed(2) < 10
+        ) {
+          this.triggerNotification('New Beacon', `${item.item.uuid}`);
+          this.blownBeacons.push(item);
+        }
+      });
+    }
+  }
+
+  clearBlown() {
+    setInterval(() => {
+      this.blownBeacons = [];
+    }, 300000);
+  }
 
   exceptionAlert(title, exception) {
     Alert.alert(
@@ -245,22 +255,6 @@ class App extends Component {
   };
 
   beaconItemRender = item => {
-    const {isListenerEnable} = this.state;
-
-    if (
-      Platform.OS === 'android' &&
-      isListenerEnable &&
-      item.item.proximity < 10
-    ) {
-      this.triggerNotification('New Beacon', `UUID: ${item.item.uuid}`);
-    } else if (
-      Platform.OS === 'ios' &&
-      isListenerEnable &&
-      item.item.proximity < 10
-    ) {
-      this.triggerNotificationIOS('New Beacon', `UUID: ${item.item.uuid}`);
-    }
-
     return (
       <View
         style={{flexDirection: 'row', marginHorizontal: 20, marginBottom: 10}}>
@@ -290,6 +284,14 @@ class App extends Component {
   };
 
   triggerNotification = (title, message) => {
+    if (Platform.OS === 'android') {
+      this.triggerNotificationAndroid(title, message);
+    } else if (Platform.OS === 'ios') {
+      this.triggerNotificationIOS(title, message);
+    }
+  };
+
+  triggerNotificationAndroid = (title, message) => {
     PushNotification.localNotification({
       channelId: 'beacon-app-channel-id',
       title,
